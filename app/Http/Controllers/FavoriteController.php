@@ -7,7 +7,6 @@ use App\Models\Favorite;
 use App\Models\Movie;
 use App\Services\TMDBService;
 
-
 class FavoriteController extends Controller
 {
     protected $tmdb;
@@ -36,7 +35,6 @@ class FavoriteController extends Controller
      *     )
      * )
      */
-
     public function index(Request $request)
     {
         $genreFilter = $request->query('genre');
@@ -47,8 +45,14 @@ class FavoriteController extends Controller
             }
         }])->get();
 
+        if ($favorites->isEmpty()) {
+            return response()->json([
+                'message' => 'Você ainda não tem filmes favoritos.'
+            ], 200);
+        }
+
         if ($genreFilter) {
-            $favorites = $favorites->filter(function ($fav) use ($genreFilter) {
+            $filteredFavorites = $favorites->filter(function ($fav) use ($genreFilter) {
                 $genres = json_decode($fav->movie->genre ?? '[]', true);
                 foreach ($genres as $genre) {
                     if (strcasecmp($genre['name'], $genreFilter) === 0) {
@@ -57,6 +61,14 @@ class FavoriteController extends Controller
                 }
                 return false;
             })->values();
+
+            if ($filteredFavorites->isEmpty()) {
+                return response()->json([
+                    'message' => 'Nenhum filme favorito encontrado para o gênero "'.$genreFilter.'"'
+                ], 200);
+            }
+
+            return response()->json($filteredFavorites);
         }
 
         return response()->json($favorites);
@@ -85,7 +97,6 @@ class FavoriteController extends Controller
      *     )
      * )
      */
-
     public function store(Request $request)
     {
         $request->validate([
@@ -94,13 +105,27 @@ class FavoriteController extends Controller
 
         $movieId = $request->input('movie_id');
 
+        // Verifica se já está favoritado
+        $existingFavorite = auth()->user()->favorites()
+            ->whereHas('movie', function($query) use ($movieId) {
+                $query->where('tmdb_id', $movieId);
+            })->first();
+
+        if ($existingFavorite) {
+            return response()->json([
+                'message' => 'Este filme já está na sua lista de favoritos!'
+            ], 200);
+        }
+
         $movie = Movie::where('tmdb_id', $movieId)->first();
 
         if (!$movie) {
             $movieData = $this->tmdb->getMovieDetails($movieId);
 
             if (!$movieData || isset($movieData['success']) && !$movieData['success']) {
-                return response()->json(['message' => 'Filme não encontrado na API'], 404);
+                return response()->json([
+                    'message' => 'Desculpe, não conseguimos encontrar este filme no TMDB.'
+                ], 404);
             }
 
             $movie = Movie::create([
@@ -113,13 +138,14 @@ class FavoriteController extends Controller
             ]);
         }
 
-        $favorite = Favorite::firstOrCreate([
+        $favorite = Favorite::create([
             'user_id' => auth()->id(),
             'movie_id' => $movie->id,
         ]);
 
         return response()->json([
-            'message' => 'Filme adicionado aos favoritos',
+            'message' => 'Filme adicionado aos favoritos com sucesso!',
+            'movie' => $movie->title,
             'favorite' => $favorite
         ], 201);
     }
@@ -146,13 +172,14 @@ class FavoriteController extends Controller
      *     )
      * )
      */
-
     public function delete($tmdb_id)
     {
         $movie = Movie::where('tmdb_id', $tmdb_id)->first();
 
         if (!$movie) {
-            return response()->json(['message' => 'Filme não encontrado no banco de dados'], 404);
+            return response()->json([
+                'message' => 'Filme não encontrado na nossa base de dados.'
+            ], 404);
         }
 
         $favorite = Favorite::where('user_id', auth()->id())
@@ -160,20 +187,28 @@ class FavoriteController extends Controller
             ->first();
 
         if (!$favorite) {
-            return response()->json(['message' => 'Este filme não está nos seus favoritos'], 404);
+            return response()->json([
+                'message' => 'Este filme não está na sua lista de favoritos.'
+            ], 404);
         }
 
         $favorite->delete();
 
         return response()->json([
-            'message' => "O filme '{$movie->title}' foi removido dos seus favoritos com sucesso."
+            'message' => "O filme '{$movie->title}' foi removido dos seus favoritos com sucesso.",
+            'action' => 'removed'
         ]);
     }
-
 
     public function genres()
     {
         $favorites = auth()->user()->favorites()->with('movie')->get();
+
+        if ($favorites->isEmpty()) {
+            return response()->json([
+                'message' => 'Você ainda não tem filmes favoritos para listar gêneros.'
+            ], 200);
+        }
 
         $allGenres = [];
 
@@ -193,7 +228,15 @@ class FavoriteController extends Controller
             ];
         }
 
-        return response()->json($uniqueGenres);
-    }
+        if (empty($uniqueGenres)) {
+            return response()->json([
+                'message' => 'Nenhum gênero encontrado para seus filmes favoritos.'
+            ], 200);
+        }
 
+        return response()->json([
+            'message' => 'Gêneros dos seus filmes favoritos:',
+            'genres' => $uniqueGenres
+        ]);
+    }
 }

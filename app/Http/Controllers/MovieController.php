@@ -34,7 +34,7 @@ class MovieController extends Controller
         $query = $request->input('query');
 
         if (!$query) {
-            return response()->json(['error' => 'Query is required'], 400);
+            return response()->json(['error' => 'É preciso o nome do filme'], 400);
         }
 
         $results = $this->tmdb->searchMovie($query);
