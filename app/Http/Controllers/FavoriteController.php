@@ -17,6 +17,26 @@ class FavoriteController extends Controller
         $this->tmdb = $tmdb;
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/favorites",
+     *     summary="Listar filmes favoritos do usuário",
+     *     tags={"Favoritos"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="genre",
+     *         in="query",
+     *         description="Filtrar por gênero",
+     *         required=false,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de filmes favoritos"
+     *     )
+     * )
+     */
+
     public function index(Request $request)
     {
         $genreFilter = $request->query('genre');
@@ -41,6 +61,30 @@ class FavoriteController extends Controller
 
         return response()->json($favorites);
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/favorites",
+     *     summary="Adicionar um filme aos favoritos",
+     *     tags={"Favoritos"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"movie_id"},
+     *             @OA\Property(property="movie_id", type="integer", example=900667)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Filme adicionado aos favoritos"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Filme não encontrado"
+     *     )
+     * )
+     */
 
     public function store(Request $request)
     {
@@ -79,6 +123,29 @@ class FavoriteController extends Controller
             'favorite' => $favorite
         ], 201);
     }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/favorites/{movie_id}",
+     *     summary="Remover um filme dos favoritos",
+     *     tags={"Favoritos"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="movie_id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Filme removido dos favoritos"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Filme não encontrado nos favoritos"
+     *     )
+     * )
+     */
 
     public function delete($tmdb_id)
     {

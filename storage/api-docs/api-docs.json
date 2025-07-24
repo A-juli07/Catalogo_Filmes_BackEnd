@@ -1,0 +1,316 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Catálogo de Filmes API",
+        "description": "Documentação da API do catálogo de filmes",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Registrar um novo usuário",
+                "operationId": "8a56853624e025573120a09a4c75d468",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Ana"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "ana@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "123456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuário registrado com sucesso"
+                    },
+                    "422": {
+                        "description": "Erro de validação"
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Login de usuário",
+                "operationId": "a3b306d14572d1f4bd6c064b3233e7b8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "ana@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "123456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login realizado com sucesso"
+                    },
+                    "401": {
+                        "description": "Credenciais inválidas"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Logout do usuário autenticado",
+                "operationId": "fe8f3429cd6979b3b4517e186505f9f9",
+                "responses": {
+                    "200": {
+                        "description": "Logout realizado com sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/me": {
+            "get": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Obter dados do usuário autenticado",
+                "operationId": "9d9bc556f927575aa492a88c28fe5908",
+                "responses": {
+                    "200": {
+                        "description": "Dados do usuário"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/favorites": {
+            "get": {
+                "tags": [
+                    "Favoritos"
+                ],
+                "summary": "Listar filmes favoritos do usuário",
+                "operationId": "81123175f76259d611e2c337477dfa5f",
+                "parameters": [
+                    {
+                        "name": "genre",
+                        "in": "query",
+                        "description": "Filtrar por gênero",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de filmes favoritos"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Favoritos"
+                ],
+                "summary": "Adicionar um filme aos favoritos",
+                "operationId": "370ffab0458b21c048b584dc20d059e0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "movie_id"
+                                ],
+                                "properties": {
+                                    "movie_id": {
+                                        "type": "integer",
+                                        "example": 900667
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Filme adicionado aos favoritos"
+                    },
+                    "404": {
+                        "description": "Filme não encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/favorites/{movie_id}": {
+            "delete": {
+                "tags": [
+                    "Favoritos"
+                ],
+                "summary": "Remover um filme dos favoritos",
+                "operationId": "6e8da066ad55a620feb913644ce2e005",
+                "parameters": [
+                    {
+                        "name": "movie_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Filme removido dos favoritos"
+                    },
+                    "404": {
+                        "description": "Filme não encontrado nos favoritos"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/movies/search": {
+            "get": {
+                "tags": [
+                    "Filmes"
+                ],
+                "summary": "Buscar filmes pelo nome",
+                "operationId": "5e901f2950d6cd4760686cc7a7afa6b8",
+                "parameters": [
+                    {
+                        "name": "query",
+                        "in": "query",
+                        "description": "Nome do filme",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de filmes encontrados"
+                    }
+                }
+            }
+        },
+        "/api/movies/{id}": {
+            "get": {
+                "tags": [
+                    "Filmes"
+                ],
+                "summary": "Buscar detalhes de um filme",
+                "operationId": "a7031f1ec2eb856acbdd7f7054ed001d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do filme no TMDB",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhes do filme"
+                    },
+                    "404": {
+                        "description": "Filme não encontrado"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Autenticação",
+            "description": "Autenticação"
+        },
+        {
+            "name": "Favoritos",
+            "description": "Favoritos"
+        },
+        {
+            "name": "Filmes",
+            "description": "Filmes"
+        }
+    ]
+}

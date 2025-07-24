@@ -2,6 +2,22 @@
 
 namespace App\Http\Controllers;
 
+/**
+ * @OA\Info(
+ *     title="Catálogo de Filmes API",
+ *     version="1.0.0",
+ *     description="Documentação da API do catálogo de filmes"
+ * )
+ * 
+ * @OA\SecurityScheme(
+ *     securityScheme="bearerAuth",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT",
+ * )
+ */
+
+
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -10,6 +26,32 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
+
+    /**
+     * @OA\Post(
+     *     path="/api/register",
+     *     summary="Registrar um novo usuário",
+     *     tags={"Autenticação"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name","email","password"},
+     *             @OA\Property(property="name", type="string", example="Ana"),
+     *             @OA\Property(property="email", type="string", format="email", example="ana@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="123456")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Usuário registrado com sucesso"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erro de validação"
+     *     )
+     * )
+     */
+
     public function register(Request $request)
     {
         try {
@@ -43,6 +85,31 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/login",
+     *     summary="Login de usuário",
+     *     tags={"Autenticação"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string", format="email", example="ana@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="123456")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Login realizado com sucesso"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Credenciais inválidas"
+     *     )
+     * )
+     */
+
+
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
@@ -66,11 +133,37 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/logout",
+     *     summary="Logout do usuário autenticado",
+     *     tags={"Autenticação"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Logout realizado com sucesso"
+     *     )
+     * )
+     */
+
     public function logout()
     {
         auth()->logout();
         return response()->json(['message' => 'Logout realizado com sucesso']);
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/me",
+     *     summary="Obter dados do usuário autenticado",
+     *     tags={"Autenticação"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Dados do usuário"
+     *     )
+     * )
+     */
 
     public function me()
     {
