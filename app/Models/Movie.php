@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Favorite;
 
 class Movie extends Model
 {
@@ -14,4 +15,9 @@ class Movie extends Model
         'release_date',
         'genre',
     ];
+
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
 }
