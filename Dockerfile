@@ -2,7 +2,10 @@ FROM php:8.2
 
 RUN apt-get update && apt-get install -y \
     libpq-dev \
-    && docker-php-ext-install pdo pdo_pgsql
+    libzip-dev \
+    zip \
+    unzip \
+    && docker-php-ext-install pdo pdo_pgsql zip
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
