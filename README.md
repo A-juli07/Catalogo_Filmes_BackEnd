@@ -24,25 +24,40 @@ cd Catalogo_Filmes_BackEnd
 cp .env.example .env
 ```
 
-### 3. Gere a key da aplicação Laravel
+Edite o .env com suas configurações.
 
-```bash
-docker-compose run --rm app php artisan key:generate
-```
 
-### 4. Suba a aplicação 
+### 3. Suba a aplicação 
 ```bash
 docker-compose up -d
 ```
 
+### 4. Migração do Banco
+```bash
+docker exec -it catalog_films php artisan migrate
+```
+
+## Rotas da API
+
+**Autenticação**
+- POST /api/register - Registrar usuário
+```json
+{
+  "name": "Nome",
+  "email": "email@exemplo.com",
+  "password": "senha123"
+}
+```
+- POST /api/login - Login
+```json
+{
+  "email": "email@exemplo.com",
+  "password": "senha123"
+}
+```
 ## Documentação da API (Swagger)
 
-A documentação interativa da API está disponível via Swagger:
+A documentação da API está disponível via Swagger:
 
 🔗 Acesse: http://localhost:8090/api/documentation
 
-Com ela, você pode:
-
-- Explorar todos os endpoints disponíveis
-- Ver exemplos de payloads e respostas
-- Testar requisições diretamente pela interface
