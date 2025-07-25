@@ -57,6 +57,8 @@ Confirme todas as alternativas.
 }
 ```
 
+### As seguintes rotas precisam de autenticação, ao realizar o login, copiar o token e enserir como Authentication Bearer.
+
 **Favoritos**
 - GET /api/favorites - Lista filmes favoritos ( Aceita filtro por gênero )
 
@@ -74,7 +76,8 @@ Confirme todas as alternativas.
 
 ## Documentação da API (Swagger)
 
-A documentação da API está disponível via Swagger:
 
+A documentação da API está disponível via Swagger:
+### Para as rotas com autenticação e realizar o login copiar o token e enserir em Authorize Bearer
 🔗 Acesse: http://localhost:8090/api/documentation
 
