@@ -55,6 +55,22 @@ docker exec -it catalog_films php artisan migrate
   "password": "senha123"
 }
 ```
+
+**Favoritos**
+- GET /api/favorites - Lista filmes favoritos ( Aceita filtro por gênero )
+
+- POST /api/favorites - Adiciona um filme aos favoritos
+```json
+{
+  "movie_id": 900667
+}
+```
+- DELETE /api/favorites/{movie_id} - Remover um filme dos favoritos
+
+**Favoritos**
+- GET /api/movies/search - Busca Filme por nome
+- GET /api/movies/{id} - Busca detalhes de um filme
+
 ## Documentação da API (Swagger)
 
 A documentação da API está disponível via Swagger:
