@@ -39,11 +39,7 @@ class FavoriteController extends Controller
     {
         $genreFilter = $request->query('genre');
 
-        $favorites = auth()->user()->favorites()->with(['movie' => function ($query) use ($genreFilter) {
-            if ($genreFilter) {
-                $query->where('genre', 'LIKE', '%"name":"'.$genreFilter.'"%');
-            }
-        }])->get();
+        $favorites = auth()->user()->favorites()->with('movie')->get();
 
         if ($favorites->isEmpty()) {
             return response()->json([
@@ -52,26 +48,41 @@ class FavoriteController extends Controller
         }
 
         if ($genreFilter) {
-            $filteredFavorites = $favorites->filter(function ($fav) use ($genreFilter) {
-                $genres = json_decode($fav->movie->genre ?? '[]', true);
+            $favorites = $favorites->filter(function ($fav) use ($genreFilter) {
+                if (!$fav->movie) return false;
+
+                $genres = is_array($fav->movie->genre)
+                    ? $fav->movie->genre
+                    : json_decode($fav->movie->genre, true);
+
                 foreach ($genres as $genre) {
-                    if (strcasecmp($genre['name'], $genreFilter) === 0) {
+                    if (isset($genre['name']) && strcasecmp($genre['name'], $genreFilter) === 0) {
                         return true;
                     }
                 }
                 return false;
             })->values();
 
-            if ($filteredFavorites->isEmpty()) {
+            if ($favorites->isEmpty()) {
                 return response()->json([
-                    'message' => 'Nenhum filme favorito encontrado para o gênero "'.$genreFilter.'"'
+                    'message' => 'Nenhum filme favorito encontrado para o gênero "' . $genreFilter . '"'
                 ], 200);
             }
-
-            return response()->json($filteredFavorites);
         }
 
-        return response()->json($favorites);
+        $result = $favorites->map(function ($fav) {
+            $movie = $fav->movie;
+            return [
+                'tmdb_id' => $movie->tmdb_id,
+                'title' => $movie->title,
+                'overview' => $movie->overview,
+                'poster_path' => $movie->poster_path,
+                'release_date' => $movie->release_date,
+                'genre' => json_encode($movie->genre),
+            ];
+        });
+
+        return response()->json($result);
     }
 
     /**
