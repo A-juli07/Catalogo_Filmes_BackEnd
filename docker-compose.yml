@@ -10,8 +10,6 @@ services:
       - .env
     depends_on:
       - db
-    volumes:
-      - .:/var/www/html
   
   db:
     container_name: db
