@@ -39,8 +39,23 @@ class MovieController extends Controller
 
         $results = $this->tmdb->searchMovie($query);
 
-        return response()->json($results);
+        $filtered = collect($results['results'] ?? [])->map(function ($movie) {
+            return [
+                'id' => $movie['id'] ?? null,
+                'title' => $movie['title'] ?? null,
+                'overview' => $movie['overview'] ?? null,
+                'release_date' => $movie['release_date'] ?? null,
+                'vote_average' => $movie['vote_average'] ?? null,
+                'poster_path' => $movie['poster_path'] ?? null,
+            ];
+        });
+
+        return response()->json([
+            'results' => $filtered,
+            'total_results' => $results['total_results'] ?? count($filtered),
+        ]);
     }
+
 
     /**
      * @OA\Get(
@@ -69,6 +84,20 @@ class MovieController extends Controller
     {
         $movie = $this->tmdb->getMovieDetails($id);
 
-        return response()->json($movie);
+        if (!$movie || isset($movie['status_code'])) {
+            return response()->json(['error' => 'Filme não encontrado'], 404);
+        }
+
+        $filtered = [
+            'title' => $movie['title'] ?? null,
+            'overview' => $movie['overview'] ?? null,
+            'release_date' => $movie['release_date'] ?? null,
+            'runtime' => $movie['runtime'] ?? null,
+            'vote_average' => $movie['vote_average'] ?? null,
+            'genres' => $movie['genres'] ?? [],
+            'poster_path' => $movie['poster_path'] ?? null,
+        ];
+
+        return response()->json($filtered);
     }
 }
