@@ -70,7 +70,7 @@ Confirme todas as alternativas.
 ```
 - DELETE /api/favorites/{movie_id} - Remover um filme dos favoritos
 
-**Favoritos**
+**Filmes**
 - GET /api/movies/search - Busca Filme por nome
 - GET /api/movies/{id} - Busca detalhes de um filme
 
