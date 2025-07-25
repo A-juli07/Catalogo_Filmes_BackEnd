@@ -36,6 +36,7 @@ docker-compose up -d
 ```bash
 docker exec -it catalog_films php artisan migrate
 ```
+Confirme todas as alternativas.
 
 ## Rotas da API
 
